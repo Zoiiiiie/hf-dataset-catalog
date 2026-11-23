@@ -536,4 +536,4 @@ class CatalogStore:
             query += " WHERE collection_run_id = ?"
             parameters.append(run_id)
         with self.connect() as connection:
-            return connection.execute(query, parameters).fetch_arrow_table()
+            return connection.execute(query, parameters).to_arrow_table()

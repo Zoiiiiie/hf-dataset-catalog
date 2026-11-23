@@ -428,7 +428,9 @@ class CatalogPipeline:
         self.store.upsert_models(run_id, "hf_datasets_master", master_records)
 
     def _export_impl(self, run_id: str) -> None:
-        (self.settings.output_dir / run_id).mkdir(parents=True, exist_ok=True)
+        from hf_dataset_catalog.exporter import CatalogExporter
+
+        CatalogExporter(self.store, self.settings.output_dir).export(run_id)
 
     def _run_datetime(self, run_id: str) -> datetime:
         rows = self.store.query_dicts(
