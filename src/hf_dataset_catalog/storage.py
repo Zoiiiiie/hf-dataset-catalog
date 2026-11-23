@@ -233,6 +233,17 @@ class CatalogStore:
                 [status.value, datetime.now(UTC), run_id],
             )
 
+    def set_current_stage(self, run_id: str, stage: str) -> None:
+        with self.connect() as connection:
+            connection.execute(
+                """
+                UPDATE collection_runs
+                SET current_stage = ?, status = ?, finished_at = NULL
+                WHERE collection_run_id = ?
+                """,
+                [stage, CollectionStatus.RUNNING.value, run_id],
+            )
+
     def register_raw_batch(
         self,
         run_id: str,
@@ -390,6 +401,42 @@ class CatalogStore:
             WHERE dataset_id = ? ORDER BY snapshot_date
             """,
             [dataset_id],
+        )
+
+    def raw_rows(self, run_id: str) -> list[dict[str, Any]]:
+        return self.query_dicts(
+            """
+            SELECT * FROM hf_datasets_raw
+            WHERE collection_run_id = ? ORDER BY dataset_id
+            """,
+            [run_id],
+        )
+
+    def ranking_rows(self, run_id: str) -> list[dict[str, Any]]:
+        return self.query_dicts(
+            """
+            SELECT * FROM dataset_rankings
+            WHERE collection_run_id = ? ORDER BY metric, rank
+            """,
+            [run_id],
+        )
+
+    def paper_rows(self, run_id: str) -> list[dict[str, Any]]:
+        return self.query_dicts(
+            """
+            SELECT * FROM hf_dataset_papers
+            WHERE collection_run_id = ? ORDER BY dataset_id, paper_id
+            """,
+            [run_id],
+        )
+
+    def master_rows(self, run_id: str) -> list[dict[str, Any]]:
+        return self.query_dicts(
+            """
+            SELECT * FROM hf_datasets_master
+            WHERE collection_run_id = ? ORDER BY dataset_id
+            """,
+            [run_id],
         )
 
     def upsert_rankings(self, run_id: str, records: Iterable[RankingRecord]) -> None:
