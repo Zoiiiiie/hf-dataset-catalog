@@ -1,0 +1,12 @@
+output_dir: data/output
+state_db: data/state/catalog.duckdb
+recent_years: 5
+top_downloads: 10000
+top_downloads_all_time: 10000
+top_citations: 10000
+batch_size: 500
+max_retries: 6
+request_interval_seconds: 0.1
+confirm_threshold: 0.95
+review_threshold: 0.80
+
