@@ -189,8 +189,13 @@ class SemanticScholarProvider:
 class OpenAlexProvider:
     base_url = "https://api.openalex.org"
 
-    def __init__(self, client: RetryingJsonClient) -> None:
+    def __init__(
+        self,
+        client: RetryingJsonClient,
+        api_key: str | None = None,
+    ) -> None:
         self.client = client
+        self.api_key = api_key
 
     async def resolve_exact(self, clue: PaperClue) -> PaperCandidate | None:
         filters = [
@@ -205,7 +210,7 @@ class OpenAlexProvider:
             filter_value, method = item
             response = await self.client.get_json(
                 f"{self.base_url}/works",
-                params={"filter": filter_value, "per-page": 1},
+                params=self._params(filter=filter_value, **{"per-page": 1}),
             )
             first = _first_result(response.payload)
             if first:
@@ -217,7 +222,7 @@ class OpenAlexProvider:
             return None
         response = await self.client.get_json(
             f"{self.base_url}/works",
-            params={"search": clue.title, "per-page": 5},
+            params=self._params(search=clue.title, **{"per-page": 5}),
         )
         payload = _mapping(response.payload)
         candidates = [
@@ -225,6 +230,11 @@ class OpenAlexProvider:
             for item in _sequence(payload.get("results"))
         ]
         return _best_text_candidate(clue, candidates)
+
+    def _params(self, **values: Any) -> dict[str, Any]:
+        if self.api_key:
+            values["api_key"] = self.api_key
+        return values
 
 
 def normalize_doi(raw: str) -> str | None:

@@ -1,0 +1,36 @@
+name: Collect Hugging Face dataset catalog
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 1 * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hf-dataset-catalog
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 720
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      SEMANTIC_SCHOLAR_API_KEY: ${{ secrets.SEMANTIC_SCHOLAR_API_KEY }}
+      OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --frozen
+      - run: uv run hf-catalog collect --config config/default.yaml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hf-dataset-catalog
+          path: data/output/
+          if-no-files-found: warn
+          retention-days: 30
