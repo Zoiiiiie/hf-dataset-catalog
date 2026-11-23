@@ -32,6 +32,7 @@ dev = [
   "pytest-asyncio>=0.25,<2",
   "respx>=0.22,<1",
   "ruff>=0.9,<1",
+  "types-python-dateutil>=2.9,<3",
   "types-PyYAML>=6.0,<7",
 ]
 
