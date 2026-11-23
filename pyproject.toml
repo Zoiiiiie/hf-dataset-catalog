@@ -17,6 +17,7 @@ dependencies = [
   "pyarrow>=18,<24",
   "pydantic>=2.10,<3",
   "python-dateutil>=2.9,<3",
+  "pytz>=2025.2",
   "pyyaml>=6.0,<7",
   "rapidfuzz>=3.10,<4",
   "tenacity>=9,<10",
@@ -31,6 +32,7 @@ dev = [
   "pytest-asyncio>=0.25,<2",
   "respx>=0.22,<1",
   "ruff>=0.9,<1",
+  "types-PyYAML>=6.0,<7",
 ]
 
 [project.scripts]
@@ -42,6 +44,7 @@ packages = ["src/hf_dataset_catalog"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = ["live: accesses live external APIs"]
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.ruff]
 line-length = 100
@@ -55,3 +58,6 @@ python_version = "3.11"
 strict = true
 packages = ["hf_dataset_catalog"]
 
+[[tool.mypy.overrides]]
+module = ["pyarrow", "pyarrow.*"]
+ignore_missing_imports = true
