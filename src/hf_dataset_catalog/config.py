@@ -53,4 +53,3 @@ def load_settings(
             values[field_name] = secret
     values.update(overrides or {})
     return Settings.model_validate(values)
-

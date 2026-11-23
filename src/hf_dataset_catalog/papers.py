@@ -133,10 +133,7 @@ class PaperResolver:
 
 class SemanticScholarProvider:
     base_url = "https://api.semanticscholar.org/graph/v1"
-    fields = (
-        "paperId,title,authors,year,publicationDate,externalIds,"
-        "citationCount,url"
-    )
+    fields = "paperId,title,authors,year,publicationDate,externalIds,citationCount,url"
 
     def __init__(self, client: RetryingJsonClient) -> None:
         self.client = client
@@ -145,9 +142,7 @@ class SemanticScholarProvider:
         identifiers = [
             (f"DOI:{clue.doi}", "doi") if clue.doi else None,
             (f"ARXIV:{clue.arxiv_id}", "arxiv") if clue.arxiv_id else None,
-            (clue.semantic_scholar_id, "semantic_scholar_id")
-            if clue.semantic_scholar_id
-            else None,
+            (clue.semantic_scholar_id, "semantic_scholar_id") if clue.semantic_scholar_id else None,
         ]
         for item in identifiers:
             if item is None:
@@ -373,9 +368,7 @@ def semantic_scholar_candidate(
         title=_optional_string(payload.get("title")),
         doi=normalize_doi(str(external_ids["DOI"])) if external_ids.get("DOI") else None,
         arxiv_id=(
-            normalize_arxiv_id(str(external_ids["ArXiv"]))
-            if external_ids.get("ArXiv")
-            else None
+            normalize_arxiv_id(str(external_ids["ArXiv"])) if external_ids.get("ArXiv") else None
         ),
         paper_url=_optional_string(payload.get("url")),
         authors=[
@@ -425,20 +418,15 @@ def openalex_candidate(
 
 
 def _clues_from_text(text: str, *, source: str, parse_title: bool) -> list[PaperClue]:
-    clues = [
-        PaperClue(doi=match.group(0), source=source) for match in DOI_PATTERN.finditer(text)
-    ]
+    clues = [PaperClue(doi=match.group(0), source=source) for match in DOI_PATTERN.finditer(text)]
     clues.extend(
-        PaperClue(arxiv_id=match.group(1), source=source)
-        for match in ARXIV_PATTERN.finditer(text)
+        PaperClue(arxiv_id=match.group(1), source=source) for match in ARXIV_PATTERN.finditer(text)
     )
     if parse_title:
         title_match = TITLE_PATTERN.search(text)
         author_match = AUTHOR_PATTERN.search(text)
         if title_match:
-            authors = (
-                re.split(r"\s+and\s+|[,;]", author_match.group(1)) if author_match else []
-            )
+            authors = re.split(r"\s+and\s+|[,;]", author_match.group(1)) if author_match else []
             clues.append(
                 PaperClue(
                     title=title_match.group(1),

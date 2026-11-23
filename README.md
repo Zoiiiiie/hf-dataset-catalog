@@ -109,3 +109,15 @@ provider values as GitHub Actions secrets. The workflow prevents overlapping
 collections, enforces a timeout, and uploads the run output as an artifact.
 
 Local state and generated datasets are intentionally ignored by Git.
+
+## Verification
+
+The default test suite is offline. Run the opt-in public API compatibility
+check with:
+
+```bash
+RUN_LIVE_TESTS=1 uv run pytest tests/test_live_smoke.py -q -m live
+```
+
+This test reads one dataset metadata row and does not request repository file
+content.

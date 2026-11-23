@@ -162,8 +162,7 @@ class CatalogPipeline:
                 {
                     "dataset_id": record["dataset_id"],
                     "payload": record,
-                    "fetched_at": _as_datetime(record.get("fetched_at"))
-                    or datetime.now(UTC),
+                    "fetched_at": _as_datetime(record.get("fetched_at")) or datetime.now(UTC),
                 }
                 for record in records
             ],
@@ -283,10 +282,7 @@ class CatalogPipeline:
 
     def _enrich_impl(self, run_id: str) -> None:
         now = self._run_datetime(run_id)
-        raw_by_id = {
-            str(row["dataset_id"]): row
-            for row in self._raw_payloads(run_id)
-        }
+        raw_by_id = {str(row["dataset_id"]): row for row in self._raw_payloads(run_id)}
         flags = {
             dataset_id: SelectionFlags.model_validate(value)
             for dataset_id, value in self._checkpoint_mapping(
@@ -341,9 +337,7 @@ class CatalogPipeline:
                 has_paper_clues=bool(extract_paper_clues(raw)),
                 paper_status=paper_status,
             )
-            extensions = sorted(
-                {record.extension.upper() for record in files if record.extension}
-            )
+            extensions = sorted({record.extension.upper() for record in files if record.extension})
             known_sizes = [record.size_bytes for record in files if record.size_bytes is not None]
             urls = dataset_urls(dataset_id, _optional_string(raw.get("sha")))
             master_records.append(
@@ -351,11 +345,9 @@ class CatalogPipeline:
                     dataset_id=dataset_id,
                     dataset_name=dataset_id.rsplit("/", maxsplit=1)[-1],
                     author=_optional_string(raw.get("author")),
-                    dataset_url=_optional_string(raw.get("dataset_url"))
-                    or urls["dataset_url"],
+                    dataset_url=_optional_string(raw.get("dataset_url")) or urls["dataset_url"],
                     files_url=_optional_string(raw.get("files_url")) or urls["files_url"],
-                    viewer_url=_optional_string(raw.get("viewer_url"))
-                    or urls["viewer_url"],
+                    viewer_url=_optional_string(raw.get("viewer_url")) or urls["viewer_url"],
                     created_at=_as_datetime(raw.get("created_at")),
                     last_modified=_as_datetime(raw.get("last_modified")),
                     sha=_optional_string(raw.get("sha")),
@@ -363,12 +355,8 @@ class CatalogPipeline:
                     tags=tags,
                     license=license_result.license,
                     license_raw=license_result.license_raw,
-                    commercial_use_restriction=(
-                        license_result.commercial_use_restriction
-                    ),
-                    redistribution_restriction=(
-                        license_result.redistribution_restriction
-                    ),
+                    commercial_use_restriction=(license_result.commercial_use_restriction),
+                    redistribution_restriction=(license_result.redistribution_restriction),
                     special_license_terms=license_result.special_license_terms,
                     modalities=classification.modalities,
                     use_cases=classification.use_cases,
@@ -383,29 +371,19 @@ class CatalogPipeline:
                     downloads=_optional_int(raw.get("downloads")),
                     downloads_all_time=_optional_int(raw.get("downloads_all_time")),
                     downloads_rank=rankings.get((dataset_id, "downloads")),
-                    downloads_all_time_rank=rankings.get(
-                        (dataset_id, "downloads_all_time")
-                    ),
+                    downloads_all_time_rank=rankings.get((dataset_id, "downloads_all_time")),
                     max_paper_citation_count=(
-                        _optional_int(top_paper.get("citation_count"))
-                        if top_paper
-                        else None
+                        _optional_int(top_paper.get("citation_count")) if top_paper else None
                     ),
-                    citation_rank=rankings.get(
-                        (dataset_id, "max_paper_citation_count")
-                    ),
+                    citation_rank=rankings.get((dataset_id, "max_paper_citation_count")),
                     citation_source=(
-                        _optional_string(top_paper.get("citation_source"))
-                        if top_paper
-                        else None
+                        _optional_string(top_paper.get("citation_source")) if top_paper else None
                     ),
                     top_paper_id=(
                         _optional_string(top_paper.get("paper_id")) if top_paper else None
                     ),
                     top_paper_title=(
-                        _optional_string(top_paper.get("paper_title"))
-                        if top_paper
-                        else None
+                        _optional_string(top_paper.get("paper_title")) if top_paper else None
                     ),
                     paper_match_status=paper_status,
                     associated_paper_count=len(paper_rows),
@@ -416,9 +394,7 @@ class CatalogPipeline:
                     **membership.model_dump(),
                     ranking_date=now.date(),
                     collection_status=(
-                        CollectionStatus.PARTIAL
-                        if quality_flags
-                        else CollectionStatus.SUCCESS
+                        CollectionStatus.PARTIAL if quality_flags else CollectionStatus.SUCCESS
                     ),
                     quality_flags=quality_flags,
                     fetched_at=_as_datetime(raw.get("fetched_at")) or now,

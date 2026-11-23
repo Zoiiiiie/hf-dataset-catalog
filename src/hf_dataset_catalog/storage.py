@@ -27,9 +27,9 @@ class CatalogStore:
     def __init__(self, path: Path) -> None:
         self.path = path
 
-    def connect(self) -> duckdb.DuckDBPyConnection:
+    def connect(self, *, read_only: bool = False) -> duckdb.DuckDBPyConnection:
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        return duckdb.connect(str(self.path))
+        return duckdb.connect(str(self.path), read_only=read_only)
 
     def initialize(self) -> None:
         with self.connect() as connection:
@@ -515,7 +515,7 @@ class CatalogStore:
         return value
 
     def query_dicts(self, query: str, parameters: list[Any] | None = None) -> list[dict[str, Any]]:
-        with self.connect() as connection:
+        with self.connect(read_only=True) as connection:
             result = connection.execute(query, parameters or [])
             columns = [item[0] for item in result.description]
             return [dict(zip(columns, row, strict=True)) for row in result.fetchall()]
@@ -535,5 +535,5 @@ class CatalogStore:
         if run_id and table != "hf_dataset_metrics":
             query += " WHERE collection_run_id = ?"
             parameters.append(run_id)
-        with self.connect() as connection:
+        with self.connect(read_only=True) as connection:
             return connection.execute(query, parameters).to_arrow_table()

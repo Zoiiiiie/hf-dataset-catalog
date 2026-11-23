@@ -31,4 +31,3 @@ def test_checkpoint_round_trip(tmp_path: Path) -> None:
     store.initialize()
     store.set_checkpoint("run-1", "enumerate", "cursor", {"batch": 4})
     assert store.get_checkpoint("run-1", "enumerate", "cursor") == {"batch": 4}
-

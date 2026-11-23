@@ -27,4 +27,3 @@ def test_yaml_and_overrides_are_merged(tmp_path: Path) -> None:
     settings = load_settings(config, {"batch_size": 10})
     assert settings.recent_years == 3
     assert settings.batch_size == 10
-

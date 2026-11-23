@@ -153,19 +153,11 @@ class CatalogExporter:
         rankings = self.store.table_arrow("dataset_rankings", run_id)
         ranking_rows = rankings.to_pylist()
         download_table = pa.Table.from_pylist(
-            [
-                row
-                for row in ranking_rows
-                if row["metric"] in {"downloads", "downloads_all_time"}
-            ],
+            [row for row in ranking_rows if row["metric"] in {"downloads", "downloads_all_time"}],
             schema=rankings.schema,
         )
         citation_table = pa.Table.from_pylist(
-            [
-                row
-                for row in ranking_rows
-                if row["metric"] == "max_paper_citation_count"
-            ],
+            [row for row in ranking_rows if row["metric"] == "max_paper_citation_count"],
             schema=rankings.schema,
         )
         self._write_parquet_atomic(recent_table, output / "dataset_recent.parquet")
@@ -210,9 +202,7 @@ class CatalogExporter:
         )
         clue_datasets = {row["dataset_id"] for row in paper_rows}
         matched_datasets = {
-            row["dataset_id"]
-            for row in paper_rows
-            if row["match_status"] == "confirmed"
+            row["dataset_id"] for row in paper_rows if row["match_status"] == "confirmed"
         }
         required_cells = len(master_rows) * len(REQUIRED_MASTER_FIELDS)
         populated_cells = sum(
@@ -230,9 +220,7 @@ class CatalogExporter:
             enumerated=enumerated,
             recent=sum(bool(row["is_recent"]) for row in master_rows),
             top_download=sum(bool(row["is_top_download"]) for row in master_rows),
-            top_download_all_time=sum(
-                bool(row["is_top_download_all_time"]) for row in master_rows
-            ),
+            top_download_all_time=sum(bool(row["is_top_download_all_time"]) for row in master_rows),
             top_citation=sum(bool(row["is_top_citation"]) for row in master_rows),
             union_count=len(master_rows),
             paper_clue_datasets=len(clue_datasets),

@@ -221,12 +221,8 @@ def classify_license(
     return LicenseResult(
         license=normalized,
         license_raw=raw_license,
-        commercial_use_restriction=_explicit_bool(
-            card_data.get("commercial_use_restriction")
-        ),
-        redistribution_restriction=_explicit_bool(
-            card_data.get("redistribution_restriction")
-        ),
+        commercial_use_restriction=_explicit_bool(card_data.get("commercial_use_restriction")),
+        redistribution_restriction=_explicit_bool(card_data.get("redistribution_restriction")),
         special_license_terms=_optional_text(card_data.get("special_license_terms")),
     )
 

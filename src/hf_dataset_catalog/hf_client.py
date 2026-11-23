@@ -37,7 +37,6 @@ DATASET_EXPAND_FIELDS: list[ExpandDatasetProperty_T] = [
     "sha",
     "siblings",
     "tags",
-    "usedStorage",
 ]
 
 DATASET_ATTRIBUTES = {

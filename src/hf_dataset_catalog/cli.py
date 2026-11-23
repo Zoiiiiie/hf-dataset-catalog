@@ -196,8 +196,7 @@ def export_command(
     if state_db:
         overrides["state_db"] = state_db
     settings = load_settings(config, overrides)
-    store = CatalogStore(settings.state_db)
-    store.initialize()
+    store = _existing_store(settings.state_db)
     _require_run(store, run_id)
     try:
         output = CatalogExporter(store, settings.output_dir).export(run_id)
@@ -218,8 +217,7 @@ def validate(
         config,
         {"state_db": state_db} if state_db else None,
     )
-    store = CatalogStore(settings.state_db)
-    store.initialize()
+    store = _existing_store(settings.state_db)
     _require_run(store, run_id)
     tables = {
         name: store.table_arrow(name, run_id).select(columns)
@@ -250,8 +248,7 @@ def status(
     if output_format not in {"table", "run-id"}:
         typer.echo("--format must be table or run-id", err=True)
         raise typer.Exit(2)
-    store = CatalogStore(state_db)
-    store.initialize()
+    store = _existing_store(state_db)
     if run_id and latest:
         typer.echo("Use either RUN_ID or --latest, not both.", err=True)
         raise typer.Exit(2)
@@ -298,6 +295,13 @@ def _require_run(store: CatalogStore, run_id: str) -> None:
     if not rows:
         typer.echo(f"Unknown run: {run_id}", err=True)
         raise typer.Exit(1)
+
+
+def _existing_store(path: Path) -> CatalogStore:
+    if not path.is_file():
+        typer.echo(f"State database not found: {path}", err=True)
+        raise typer.Exit(1)
+    return CatalogStore(path)
 
 
 if __name__ == "__main__":

@@ -22,10 +22,7 @@ class FakeHuggingFaceSource:
         on_rejected: Any = None,
     ) -> list[dict[str, Any]]:
         self.iteration_count += 1
-        return [
-            {**row, "fetched_at": fetched_at or datetime.now(UTC)}
-            for row in self.rows
-        ]
+        return [{**row, "fetched_at": fetched_at or datetime.now(UTC)} for row in self.rows]
 
 
 class FakePaperResolver:
